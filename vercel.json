@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/chat/(.*)",
-      "destination": "http://aaa.xyxy234.cn/half_query/$1"
+      "source": "/api/chat",
+      "destination": "http://aaa.xyxy234.cn/half_query"
     }
   ]
 }
