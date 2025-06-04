@@ -3,6 +3,7 @@
   "collapseSidePanel": "折叠侧边面板",
   "expandSidePanel": "展开侧边面板",
   "send": "发送",
+  "thoughtOfChain": "思考过程",
   "requestFallback": "请求失败，请重试！",
   "requestAborted": "请求已中止",
   "requestInProgress": "请求正在进行中，请等待请求完成。",

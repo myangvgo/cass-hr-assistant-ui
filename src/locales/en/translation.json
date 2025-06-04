@@ -3,6 +3,7 @@
   "collapseSidePanel": "Collapse Side Panel",
   "expandSidePanel": "Expand Side Panel",
   "send": "Send",
+  "thoughtOfChain": "Thought of Chain",
   "requestFallback": "Request failed, please try again!",
   "requestAborted": "Request is aborted",
   "requestInProgress": "RRequest is in progress, please wait for the request to complete.",

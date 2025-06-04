@@ -36,7 +36,7 @@ import { useTranslation } from "react-i18next";
 import ContiIcon from "../assets/continental-icon.png";
 import Logo from "../assets/continental.svg";
 import { useScrollToBottom } from "../hooks/useScrollToBottom";
-import { BubbleLoadingIcon, NewChatIcon, SidebarIcon } from "../icons/chat-icons";
+import { BubbleLoadingIcon, NewChatIcon, SidebarIcon, ThoughtChainIcon } from "../icons/chat-icons";
 import useStyle from "../style";
 import { FaqDe, FaqEn, FaqZh } from "./Faq";
 import { HotTopicsDe, HotTopicsEn, HotTopicsZh } from "./HotTopics";
@@ -52,34 +52,6 @@ const extractThinkContent = (input: string): string => {
 const extractNormalContent = (input: string): string => {
   const regex = /<think>(.*?)<\/think>/gs;
   return input.replace(regex, '');
-};
-
-const renderAssistantContentAsMarkdown: BubbleProps["messageRender"] = (text) => {
-  const content = text || '';
-  const hasThinking = content.includes('<think>');
-  const isThinking = content.includes('<think>') && !content.includes('</think>');
-  const thinkingText = (isThinking ? content.replace('<think>', '') : extractThinkContent(content)) || '';
-  const normalText = (isThinking ? '' : extractNormalContent(content)) || '';
-
-  return (
-    <>
-      {hasThinking && thinkingText && (
-        <ThoughtChain items={[{
-          key: '1',
-          title: 'Thought of Chain',
-          icon: isThinking ? <LoadingOutlined /> : <CheckCircleOutlined />,
-          content: <MarkdownRenderer content={thinkingText} />,
-          status: isThinking ? 'pending' : 'success',
-        }]} />
-      )}
-
-      {(!hasThinking || !isThinking) && (<>
-        <br />
-        <MarkdownRenderer content={normalText} />
-      </>)}
-    </>
-
-  );
 };
 
 const renderUserContentAsMarkdown: BubbleProps["messageRender"] = (content) => {
@@ -203,6 +175,35 @@ const ChatInterface = () => {
       };
     },
   });
+
+  // Markdown renderers for user and assistant messages
+  const renderAssistantContentAsMarkdown: BubbleProps["messageRender"] = (text) => {
+    const content = text || '';
+    const hasThinking = content.includes('<think>');
+    const isThinking = content.includes('<think>') && !content.includes('</think>');
+    const thinkingText = (isThinking ? content.replace('<think>', '') : extractThinkContent(content)) || '';
+    const normalText = (isThinking ? '' : extractNormalContent(content)) || '';
+
+    return (
+      <>
+        {hasThinking && thinkingText && (
+          <ThoughtChain items={[{
+            key: '1',
+            title: <Flex gap={4}><ThoughtChainIcon /> {t('thoughtOfChain')}</Flex>,
+            icon: isThinking ? <LoadingOutlined /> : <CheckCircleOutlined />,
+            content: <MarkdownRenderer content={thinkingText} />,
+            status: isThinking ? 'pending' : 'success',
+          }]} />
+        )}
+
+        {(!hasThinking || !isThinking) && (<>
+          <br />
+          <MarkdownRenderer content={normalText} />
+        </>)}
+      </>
+
+    );
+  };
 
   // ==================== Event ====================
   const onMessageSubmit = (val: string) => {
