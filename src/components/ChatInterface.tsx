@@ -4,6 +4,7 @@ import {
   LoadingOutlined,
   PlusOutlined,
   QuestionCircleOutlined,
+  TranslationOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import {
@@ -21,6 +22,7 @@ import {
   Avatar,
   Button,
   Card,
+  Dropdown,
   Flex,
   FloatButton,
   message,
@@ -30,14 +32,16 @@ import {
   type GetProp,
 } from "antd";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ContiIcon from "../assets/continental-icon.png";
 import Logo from "../assets/continental.svg";
-import useStyle from "../style";
-import Faq from "./Faq";
-import HotTopics from "./HotTopics";
-import { BubbleLoadingIcon, NewChatIcon, SidebarIcon } from "../icons/chat-icons";
-import MarkdownRenderer from "./MarkdownRenderer";
 import { useScrollToBottom } from "../hooks/useScrollToBottom";
+import { BubbleLoadingIcon, NewChatIcon, SidebarIcon } from "../icons/chat-icons";
+import useStyle from "../style";
+import { FaqDe, FaqEn, FaqZh } from "./Faq";
+import { HotTopicsDe, HotTopicsEn, HotTopicsZh } from "./HotTopics";
+import Languages from "./Languages";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 const extractThinkContent = (input: string): string => {
   const regex = /<think>(.*?)<\/think>/gs;
@@ -59,7 +63,7 @@ const renderAssistantContentAsMarkdown: BubbleProps["messageRender"] = (text) =>
 
   return (
     <>
-      {hasThinking && (
+      {hasThinking && thinkingText && (
         <ThoughtChain items={[{
           key: '1',
           title: 'Thought of Chain',
@@ -84,6 +88,32 @@ const renderUserContentAsMarkdown: BubbleProps["messageRender"] = (content) => {
   );
 };
 
+const getHotTopics = (language: string) => {
+  switch (language) {
+    case 'en':
+      return HotTopicsEn;
+    case 'de':
+      return HotTopicsDe;
+    case 'zh':
+      return HotTopicsZh;
+    default:
+      return HotTopicsEn;
+  }
+}
+
+const getFaq = (language: string) => {
+  switch (language) {
+    case 'en':
+      return FaqEn;
+    case 'de':
+      return FaqDe;
+    case 'zh':
+      return FaqZh;
+    default:
+      return FaqEn;
+  }
+}
+
 const roles: GetProp<typeof Bubble.List, "roles"> = {
   assistant: {
     variant: "borderless",
@@ -95,7 +125,13 @@ const roles: GetProp<typeof Bubble.List, "roles"> = {
 };
 
 const ChatInterface = () => {
+  // ==================== Global ====================
+
   const { styles } = useStyle();
+  const { t, i18n } = useTranslation();
+
+  // ==================== Refs ====================
+
   const abortController = useRef<AbortController>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -103,8 +139,6 @@ const ChatInterface = () => {
 
   const [inputValue, setInputValue] = useState("");
   const [sidebarVisiable, setSidebarVisiable] = useState(true);
-  // const [showScrollToBottom, setShowScrollToBottom] = useState(false);
-
   const { showScrollToBottom, onScroll } = useScrollToBottom();
 
   // ==================== Runtime ====================
@@ -123,12 +157,12 @@ const ChatInterface = () => {
     requestFallback: (_, { error }) => {
       if (error.name === "AbortError") {
         return {
-          content: "Request is aborted",
+          content: t("requestAborted"),
           role: "assistant",
         };
       }
       return {
-        content: "Request failed, please try again!",
+        content: t("requestFallback"),
         role: "assistant",
       };
     },
@@ -154,11 +188,6 @@ const ChatInterface = () => {
         }
       }
 
-      // currentText = currentText
-      //   .trim()
-      //   .replace(/^"|"$/g, "")
-      //   .replace(/\\n/g, "\n");
-
       const content = `${originMessage?.content || ""}${currentText}`;
 
       if (status === 'success' && content.includes('<think>') && !content.includes('</think')) {
@@ -180,9 +209,7 @@ const ChatInterface = () => {
     if (!val.trim()) return;
 
     if (loading) {
-      message.error(
-        "Request is in progress, please wait for the request to complete."
-      );
+      message.error(t("requestInProgress"));
       return;
     }
 
@@ -228,7 +255,7 @@ const ChatInterface = () => {
                 setMessages([]);
               }}
             >
-              New Chat
+              {t('newChat')}
             </Button>
             {/* 🌟 Sider Content */}
             <div className={styles.siderContent}></div>
@@ -251,27 +278,37 @@ const ChatInterface = () => {
       <div className={styles.mainSection}>
         {/* Header */}
         <div className={styles.header}>
-          <Flex gap={4}>
-            <Tooltip
-              title={
-                sidebarVisiable ? "Collapse side panel" : "Expand side panel"
-              }
-            >
-              <SidebarIcon
-                onClick={() => setSidebarVisiable(!sidebarVisiable)}
-                style={{ color: "#ffa500" }}
-              />
-            </Tooltip>
-            <Tooltip title="Start a new chat">
-              <NewChatIcon
-                onClick={() => {
-                  setMessages([]);
-                }}
-                style={{ color: "#ffa500" }}
-              />
-            </Tooltip>
+          <Flex gap={8}>
+            <Flex gap={4}>
+              <Tooltip
+                title={
+                  sidebarVisiable ? t('collapseSidePanel') : t('expandSidePanel')
+                }
+              >
+                <SidebarIcon
+                  onClick={() => setSidebarVisiable(!sidebarVisiable)}
+                  style={{ color: "#ffa500" }}
+                />
+              </Tooltip>
+              <Tooltip title={t('newChat')}>
+                <NewChatIcon
+                  onClick={() => {
+                    setMessages([]);
+                  }}
+                  style={{ color: "#ffa500" }}
+                />
+              </Tooltip>
+            </Flex>
+            <span className={styles.appName}>{t('appName')}</span>
           </Flex>
-          <span className={styles.appName}>HR AI ASSISTANT</span>
+          <Dropdown menu={{
+            items: Languages,
+            onClick: ({ key }) => i18n.changeLanguage(key),
+            selectable: true,
+            selectedKeys: [i18n.language || 'en'],
+          }}>
+            <Button type="text" shape="circle" icon={<TranslationOutlined style={{ color: '#ffa500', fontSize: '1.1rem' }} />} />
+          </Dropdown>
         </div>
 
         <div className={styles.chatContainer}>
@@ -279,10 +316,6 @@ const ChatInterface = () => {
           <div className={styles.chatMessageList}
             ref={containerRef}
             onScroll={onScroll}
-            style={{
-              height: '100%',
-              overflowY: 'auto',
-            }}
           >
             {/* Messages */}
             {messages?.length > 0 ? (
@@ -306,26 +339,25 @@ const ChatInterface = () => {
               <Space
                 direction="vertical"
                 size={16}
-                style={{ paddingInline: "calc(calc(100% - 768px) / 2)" }}
-                className={styles.placeholder}
+                className={styles.welcomeContainer}
               >
                 {/* Welcome */}
                 <Card className={styles.welcomeCard}>
                   <Welcome
                     variant="borderless"
                     icon={<img src={ContiIcon} alt="HR Assistant Icon" />}
-                    title="Hello, I'm your HR AI Assistant"
-                    description="Powered by DeepSeek-R1 to provide an all-in-one experience with HR"
+                    title={t("welcomeTitle")}
+                    description={t("welcomeDescription")}
                   />
                 </Card>
 
                 {/* Prompts */}
                 <Typography.Title level={5} style={{ margin: 0 }}>
-                  I can assist you with:
+                  {t("iCanHelpYou")}
                 </Typography.Title>
-                <Flex gap={16}>
+                <Flex gap={16} >
                   <Prompts
-                    items={[HotTopics]}
+                    items={[getHotTopics(i18n.language)]}
                     styles={{
                       list: { height: "100%" },
                       item: {
@@ -343,7 +375,7 @@ const ChatInterface = () => {
                     className={styles.chatPrompt}
                   />
                   <Prompts
-                    items={[Faq]}
+                    items={[getFaq(i18n.language)]}
                     styles={{
                       item: {
                         flex: 1,
@@ -367,7 +399,7 @@ const ChatInterface = () => {
           {/* Message Input Box */}
           <Sender
             className={styles.sender}
-            placeholder="Ask a question..."
+            placeholder={t("senderPlaceholder")}
             loading={loading}
             value={inputValue}
             onSubmit={(nextContent) => {
@@ -385,7 +417,9 @@ const ChatInterface = () => {
                   {loading ? (
                     <LoadingButton type="default" />
                   ) : (
-                    <SendButton type="primary" />
+                    <Tooltip title={t("emptyMessage")}>
+                      <SendButton type="primary" />
+                    </Tooltip>
                   )}
                 </>
               );
@@ -408,7 +442,7 @@ const ChatInterface = () => {
 
               bottom: 96,
             }}
-            tooltip={<span>Scroll to bottom</span>}
+            tooltip={<span>{t('scrollToBottom')}</span>}
           />
         )}
       </div>

@@ -1,0 +1,16 @@
+{
+  "newChat": "开启新对话",
+  "collapseSidePanel": "折叠侧边面板",
+  "expandSidePanel": "展开侧边面板",
+  "send": "发送",
+  "requestFallback": "请求失败，请重试！",
+  "requestAborted": "请求已中止",
+  "requestInProgress": "请求正在进行中，请等待请求完成。",
+  "appName": "人力资源 AI 助手",
+  "welcomeTitle": "你好，我是你的人力资源 AI 助手",
+  "welcomeDescription": "由 DeepSeek-R1 提供支持，带来一体化的人力资源任务体验。",
+  "iCanHelpYou": "我可以协助您完成以下任务：",
+  "senderPlaceholder": "请提问...",
+  "emptyMessage": "消息内容不能为空",
+  "scrollToBottom": "滚动到底部"
+}

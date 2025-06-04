@@ -1,4 +1,4 @@
-import { createStyles } from "antd-style";
+import { createStyles } from 'antd-style'
 
 const useStyle = createStyles(({ token, css, prefixCls }) => {
   return {
@@ -41,8 +41,8 @@ const useStyle = createStyles(({ token, css, prefixCls }) => {
       width: 256;
     `,
     newChatButton: css`
-      background: ${token["orange-1"]};
-      border: 1px solid ${token["orange-3"]};
+      background: ${token['orange-1']};
+      border: 1px solid ${token['orange-3']};
       height: 40px;
       &.${prefixCls}-btn-link {
         color: #ffa500;
@@ -68,16 +68,17 @@ const useStyle = createStyles(({ token, css, prefixCls }) => {
     header: css`
       height: 60px;
       border-bottom: 1px solid ${token.colorBorderSecondary};
-      padding: 12px;
+      padding: 12px 24px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 24px;
     `,
     appName: css`
       font-weight: 600;
       color: ${token.colorPrimary};
       font-size: 18px;
-      border: 2px solid ${token["orange-4"]};
+      border: 2px solid ${token['orange-4']};
       border-radius: 4px;
       padding: 5px 10px;
       cursor: default;
@@ -103,8 +104,10 @@ const useStyle = createStyles(({ token, css, prefixCls }) => {
       padding-top: 20px;
       padding-bottom: 20px;
     `,
-    placeholder: css`
+    welcomeContainer: css`
       padding-top: 32px;
+      width: 100%;
+      padding-inline: calc(calc(100% - 768px) / 2);
     `,
     welcomeCard: css`
       background: linear-gradient(160deg, #f9e7cc 0%, #f4cf9b 100%);
@@ -114,6 +117,8 @@ const useStyle = createStyles(({ token, css, prefixCls }) => {
       }
     `,
     chatPrompt: css`
+      flex: 1;
+
       .ant-prompts-label {
         color: #000000e0 !important;
       }
@@ -142,7 +147,7 @@ const useStyle = createStyles(({ token, css, prefixCls }) => {
       max-width: 768px;
       margin: 0 auto;
     `,
-  };
-});
+  }
+})
 
-export default useStyle;
+export default useStyle

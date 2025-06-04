@@ -1,0 +1,16 @@
+{
+  "newChat": "New Chat",
+  "collapseSidePanel": "Collapse Side Panel",
+  "expandSidePanel": "Expand Side Panel",
+  "send": "Send",
+  "requestFallback": "Request failed, please try again!",
+  "requestAborted": "Request is aborted",
+  "requestInProgress": "RRequest is in progress, please wait for the request to complete.",
+  "appName": "HR AI ASSISTANT",
+  "welcomeTitle": "Hello, I'm your HR AI Assistant",
+  "welcomeDescription": "Powered by DeepSeek-R1 to provide an all-in-one experience with HR tasks.",
+  "iCanHelpYou": "I can assist you with:",
+  "senderPlaceholder": "Ask a question...",
+  "emptyMessage": "Message is empty",
+  "scrollToBottom": "Scroll to bottom"
+}

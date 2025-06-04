@@ -1,0 +1,16 @@
+{
+  "newChat": "Neuer Chat",
+  "collapseSidePanel": "Seitenleiste einklappen",
+  "expandSidePanel": "Seitenleiste ausklappen",
+  "send": "Senden",
+  "requestFallback": "Anfrage fehlgeschlagen, bitte versuche es erneut!",
+  "requestAborted": "Anfrage wurde abgebrochen",
+  "requestInProgress": "Anfrage wird bearbeitet, bitte warte bis sie abgeschlossen ist.",
+  "appName": "HR KI-ASSISTENT",
+  "welcomeTitle": "Hallo, ich bin dein HR KI-Assistent",
+  "welcomeDescription": "Bereitgestellt von DeepSeek-R1 für eine umfassende HR-Erfahrung.",
+  "iCanHelpYou": "Ich kann dir bei Folgendem helfen:",
+  "senderPlaceholder": "Stelle eine Frage...",
+  "emptyMessage": "Nachricht ist leer",
+  "scrollToBottom": "Nach unten scrollen"
+}
