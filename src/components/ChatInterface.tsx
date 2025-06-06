@@ -27,6 +27,7 @@ import {
   FloatButton,
   message,
   Space,
+  Switch,
   Tooltip,
   Typography,
   type GetProp,
@@ -38,27 +39,11 @@ import Logo from "../assets/continental.svg";
 import { useScrollToBottom } from "../hooks/useScrollToBottom";
 import { BubbleLoadingIcon, NewChatIcon, SidebarIcon, ThoughtChainIcon } from "../icons/chat-icons";
 import useStyle from "../style";
+import { extractNormalContent, extractThinkContent, extractUserContent } from "../utils/string-util";
 import { FaqDe, FaqEn, FaqZh } from "./Faq";
 import { HotTopicsDe, HotTopicsEn, HotTopicsZh } from "./HotTopics";
 import Languages from "./Languages";
 import MarkdownRenderer from "./MarkdownRenderer";
-
-const extractThinkContent = (input: string): string => {
-  const regex = /<think>(.*?)<\/think>/gs;
-  const match = input.match(regex);
-  return match ? match[0] : '';
-};
-
-const extractNormalContent = (input: string): string => {
-  const regex = /<think>(.*?)<\/think>/gs;
-  return input.replace(regex, '');
-};
-
-const renderUserContentAsMarkdown: BubbleProps["messageRender"] = (content) => {
-  return (
-    <MarkdownRenderer content={content} />
-  );
-};
 
 const getHotTopics = (language: string) => {
   switch (language) {
@@ -89,6 +74,7 @@ const getFaq = (language: string) => {
 const roles: GetProp<typeof Bubble.List, "roles"> = {
   assistant: {
     variant: "borderless",
+    avatar: { icon: <img src={ContiIcon} />, style: { backgroundColor: "transparent", width: '48px', height: '48px' } },
   },
   user: {
     placement: "end",
@@ -110,6 +96,7 @@ const ChatInterface = () => {
   // ==================== State ====================
 
   const [inputValue, setInputValue] = useState("");
+  const [answerLanguageMode, setAnswerLanguageMode] = useState(false);
   const [sidebarVisiable, setSidebarVisiable] = useState(true);
   const { showScrollToBottom, onScroll } = useScrollToBottom();
 
@@ -183,13 +170,18 @@ const ChatInterface = () => {
     const isThinking = content.includes('<think>') && !content.includes('</think>');
     const thinkingText = (isThinking ? content.replace('<think>', '') : extractThinkContent(content)) || '';
     const normalText = (isThinking ? '' : extractNormalContent(content)) || '';
+    const isValidThinkingText = thinkingText.trim().length > 0;
 
     return (
       <>
-        {hasThinking && thinkingText && (
-          <ThoughtChain items={[{
+        {hasThinking && isValidThinkingText && (
+          <ThoughtChain size='small' items={[{
             key: '1',
-            title: <Flex gap={4}><ThoughtChainIcon /> {t('thoughtOfChain')}</Flex>,
+            title: (
+              <Flex gap={4}>
+                <ThoughtChainIcon /> {t('thoughtOfChain')}
+              </Flex>
+            ),
             icon: isThinking ? <LoadingOutlined /> : <CheckCircleOutlined />,
             content: <MarkdownRenderer content={thinkingText} />,
             status: isThinking ? 'pending' : 'success',
@@ -205,6 +197,13 @@ const ChatInterface = () => {
     );
   };
 
+  const renderUserContentAsMarkdown: BubbleProps["messageRender"] = (content) => {
+    const userContent = extractUserContent(content || '');
+    return (
+      <MarkdownRenderer content={userContent} />
+    );
+  };
+
   // ==================== Event ====================
   const onMessageSubmit = (val: string) => {
     if (!val.trim()) return;
@@ -214,9 +213,22 @@ const ChatInterface = () => {
       return;
     }
 
+    const answerInLocale = () => {
+      switch (i18n.language) {
+        case 'en':
+          return ' Please answer in English';
+        case 'de':
+          return ' Bitte antworten Sie auf Deutsch';
+        case 'zh':
+          return ' 请用中文回答';
+        default:
+          return ' Please answer in English';
+      }
+    }
+
     onRequest({
-      half_query: val,
-      message: { role: "user", content: val },
+      half_query: answerLanguageMode ? `${val} ${answerInLocale()}` : val,
+      message: { role: "user", content: answerLanguageMode ? `${val}<locale_rule>${answerInLocale()}</locale_rule>` : val },
       stream: true,
     });
   };
@@ -411,18 +423,29 @@ const ChatInterface = () => {
             onCancel={() => {
               abortController.current?.abort();
             }}
-            actions={(_, info) => {
-              const { SendButton, LoadingButton } = info.components;
+            actions={false}
+            footer={({ components }) => {
+              const { SendButton, LoadingButton } = components;
               return (
-                <>
+                <Flex justify="space-between" align="center">
+                  <Tooltip title={t('answerLanguageTooltip')}>
+                    <Flex gap={8} align="center">
+                      <Typography>
+                        {t('answerLanguage')}
+                      </Typography>
+                      <Switch size="small" checked={answerLanguageMode} onClick={() => setAnswerLanguageMode(!answerLanguageMode)}></Switch>
+                    </Flex>
+                  </Tooltip>
                   {loading ? (
-                    <LoadingButton type="default" />
+                    <Tooltip title={t("stopAnswering")}>
+                      <LoadingButton type="default" />
+                    </Tooltip>
                   ) : (
-                    <Tooltip title={t("emptyMessage")}>
+                    <Tooltip title={inputValue?.trim().length > 0 ? t('send') : t("emptyMessage")}>
                       <SendButton type="primary" />
                     </Tooltip>
                   )}
-                </>
+                </Flex>
               );
             }}
           />
